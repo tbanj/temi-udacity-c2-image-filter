@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
@@ -26,7 +27,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
   //    image_url: URL of a publicly accessible image
 
 
-  app.get("/filteredimage", async (req, res) => {
+  app.get("/filteredimage", async (req: Request, res: Response) => {
     try {
       //    1. validate the image_url query
       let { image_url } = req.query;
@@ -40,25 +41,33 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
       }
 
       //    2. call filterImageFromURL(image_url) to filter the image
-      const filteredpath = await filterImageFromURL(image_url);
+      const filteredpath: string = await filterImageFromURL(image_url);
 
       //    3. send the resulting file in the response
       if (filteredpath) {
-        res.status(200)
-          .send({
-            success: true,
-            message: 'image filtered',
-            data: filteredpath
-          });
+        /*      res.status(200)
+               .send({
+                 success: true,
+                 message: 'image filtered',
+                 data: filteredpath
+               }); */
+        // const data =
+
+        const data = filteredpath;
+        res.sendFile(data,
+          //    4. deletes any files on the server on finish of the response
+          async () => await deleteLocalFiles([filteredpath]));
         // return res.sendFile(filteredpath)
+
+        return;
       }
 
-      //    4. deletes any files on the server on finish of the response
-      deleteLocalFiles([filteredpath]);
+
+
 
       // RETURNS
       //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
-      return;
+
 
     } catch (error) {
       console.error('Error', error);
@@ -74,7 +83,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/", async (req, res) => {
+  app.get("/", async (req: Request, res: Response) => {
     res.send("try GET /filteredimage?image_url={{}}")
   });
 

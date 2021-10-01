@@ -13,7 +13,7 @@ import Jimp = require('jimp');
 export async function filterImageFromURL(inputURL: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
         try {
-            console.warn('inputURL', inputURL)
+
             // const photo = await Jimp.read(inputURL);
             const photo = await axios({
                 method: 'get',
