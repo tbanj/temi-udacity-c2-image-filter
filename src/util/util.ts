@@ -1,4 +1,6 @@
+
 import fs from 'fs';
+import axios from 'axios';
 import Jimp = require('jimp');
 
 // filterImageFromURL
@@ -8,17 +10,33 @@ import Jimp = require('jimp');
 //    inputURL: string - a publicly accessible url to an image file
 // RETURNS
 //    an absolute path to a filtered image locally saved file
-export async function filterImageFromURL(inputURL: string): Promise<string>{
-    return new Promise( async resolve => {
-        const photo = await Jimp.read(inputURL);
-        const outpath = '/tmp/filtered.'+Math.floor(Math.random() * 2000)+'.jpg';
-        await photo
-        .resize(256, 256) // resize
-        .quality(60) // set JPEG quality
-        .greyscale() // set greyscale
-        .write(__dirname+outpath, (img)=>{
-            resolve(__dirname+outpath);
-        });
+export async function filterImageFromURL(inputURL: string): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.warn('inputURL', inputURL)
+            // const photo = await Jimp.read(inputURL);
+            const photo = await axios({
+                method: 'get',
+                url: inputURL,
+                responseType: 'arraybuffer'
+            })
+                .then(function ({ data: imageBuffer }) {
+                    return Jimp.read(imageBuffer)
+                });
+            if (photo) {
+                const outpath = '/tmp/filtered.' + Math.floor(Math.random() * 2000) + '.jpg';
+                await photo
+                    .resize(256, 256) // resize
+                    .quality(60) // set JPEG quality
+                    .greyscale() // set greyscale
+                    .write(__dirname + outpath, (img) => {
+                        resolve(__dirname + outpath);
+                    });
+
+            }
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -27,8 +45,8 @@ export async function filterImageFromURL(inputURL: string): Promise<string>{
 // useful to cleanup after tasks
 // INPUTS
 //    files: Array<string> an array of absolute paths to files
-export async function deleteLocalFiles(files:Array<string>){
-    for( let file of files) {
+export async function deleteLocalFiles(files: Array<string>) {
+    for (let file of files) {
         fs.unlinkSync(file);
     }
 }

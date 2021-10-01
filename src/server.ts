@@ -61,6 +61,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
       return;
 
     } catch (error) {
+      console.error('Error', error);
 
     }
   });
