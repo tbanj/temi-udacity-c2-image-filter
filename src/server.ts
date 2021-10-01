@@ -32,7 +32,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
       let { image_url } = req.query;
 
       if (!image_url) {
-        return res.status(400)
+        return res.status(422)
           .send({
             success: false,
             message: `image_url is required`
@@ -62,7 +62,10 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
     } catch (error) {
       console.error('Error', error);
-
+      res.status(503)
+        .send({
+          message: "An error occured while processing data",
+        });
     }
   });
   /**************************************************************************** */
